@@ -9,27 +9,30 @@ github_agent = Github(os.getenv("GITHUB_ACCESS"))
 user = github_agent.get_user()
 username = user.login
 
+
 class DjangoOption:
-    DJANGO, DJANGOAPI = [str(i) for i in range(2)]
+    DJANGO, DJANGOAPI = "django", "djangoApi"
 
 
 class AngularOption:
-    Angular, = [str(i) for i in range(1)]
+    Angular, = "angular",
 
 
 def set_parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--name', required=False)
-    parser.add_argument('--project_folder', default=None)
+    parser.add_argument('--name', required=False, help="Nom du projet à créer")
+    parser.add_argument('--project_folder', default=None, help="Chemin vers le dossier où creer le projet")
 
     # Arguments pour Git
-    parser.add_argument('--github', default=False)
-    parser.add_argument('--public', '--p', default=None)
+    parser.add_argument('--github', default=False,
+                        help="Décrit si le projet doit etre créé également sur Github", type=bool)
+    parser.add_argument('--public', '--p', default=None,
+                        help="Décrit si le projet sera public", type=bool)
 
     # Arguments pour django
-    parser.add_argument('--django', choices=(DjangoOption.DJANGO, DjangoOption.DJANGOAPI))
-    parser.add_argument('--angular', choices=(AngularOption.Angular, ))
+    parser.add_argument('--django', choices=(DjangoOption.DJANGO, DjangoOption.DJANGOAPI), help="Type de projet Django")
+    parser.add_argument('--angular', choices=(AngularOption.Angular,), help="Type de projet Angular")
 
     return parser.parse_args()
 
@@ -50,6 +53,8 @@ def get_project_folder(parse_args):
 
 def get_project_name(parse_args, folder):
     name = getattr(parse_args, 'name')
+    while not name:
+        name = input("Renseigner le nom du projet\n")
     exist = os.path.exists(os.path.join(folder, name))
     if not name or exist:
         while True:
